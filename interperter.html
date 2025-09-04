@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Interpreter - Secure</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1e1e1e;
+      color: #0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    textarea {
+      width: 95%;
+      height: 250px;
+      background: #111;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+    }
+    #userInput {
+      width: 90%;
+      height: 120px;
+      background: #000;
+      color: #0f0;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+      resize: vertical;
+    }
+    button {
+      background: #27ae60;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      margin: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    pre {
+      width: 90%;
+      height: 200px;
+      background: #000;
+      color: #0f0;
+      padding: 10px;
+      overflow-y: auto;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Python Interpreter</h2>
+
+  <textarea id="code"># Write Python code here
+print("Hello World")</textarea>
+  <textarea id="userInput" placeholder="Enter multi-line input here..."></textarea>
+  <button onclick="runCode()">Run Code</button>
+
+  <pre id="output">Output will appear here...</pre>
+
+  <script>
+    function runCode() {
+      const code = document.getElementById("code").value;
+      const input = document.getElementById("userInput").value;
+
+      fetch("http://localhost:5000/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, input })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("output").textContent = data.output || data.error || "No output";
+      });
+    }
+  </script>
+</body>
+</html>
