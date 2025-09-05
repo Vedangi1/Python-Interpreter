@@ -10,6 +10,6 @@ An offline Python interpreter with a web-based terminal, designed to execute Pyt
 
 ✅ Flask Backend – Handles execution and code processing seamlessly.
 
-✅ Bundled Libraries – Preloaded with standard Python libraries for offline use.
+✅ Bundled Libraries – Preloaded with standard Python libraries for offline use (numpy , pandas , matplotlib , tkinter and re )
 
 ✅ Beginner-Friendly – Great for students, educators, and offline coding environments.
