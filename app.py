@@ -4,14 +4,15 @@ import sys
 import contextlib
 from flask_cors import CORS
 
-# Force Matplotlib to use Tkinter GUI backend
-import matplotlib
-matplotlib.use("TkAgg")
-
+# Data/ML libraries
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")   # GUI disable, for backend only
 import matplotlib.pyplot as plt
-import tkinter as tk   # Tkinter support
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+import base64
 
 app = Flask(__name__)
 CORS(app)
@@ -26,14 +27,14 @@ def run_code():
     code = data.get("code", "")
     user_input = data.get("input", "")
 
-    # Redirect input and output
+    # Redirect input/output
     sys.stdin = io.StringIO(user_input)
     output = io.StringIO()
 
     def secure_input(prompt=""):
         return input()
 
-    # Safe builtins (still risky for production, but ok for practice)
+    # Safe builtins
     safe_builtins = {
         "print": print,
         "input": secure_input,
@@ -44,20 +45,39 @@ def run_code():
         "len": len,
         "bool": bool,
         "list": list,
-        "__import__": __import__  # Allow imports
+        "__import__": __import__
     }
 
+    # Allowed globals (expose ML & plotting libs)
     safe_globals = {
-        "__builtins__": safe_builtins
+        "__builtins__": safe_builtins,
+        "np": np,
+        "pd": pd,
+        "plt": plt,
+        "sns": sns,
+        "LinearRegression": LinearRegression
     }
 
     try:
         with contextlib.redirect_stdout(output):
             exec(code, safe_globals)
-        return jsonify({"output": output.getvalue()})
+
+            # Check if plot was created
+            img_data = None
+            if plt.get_fignums():  # If a figure exists
+                buf = io.BytesIO()
+                plt.savefig(buf, format="png")
+                buf.seek(0)
+                img_data = base64.b64encode(buf.read()).decode("utf-8")
+                plt.close("all")  # Clear after sending
+
+        return jsonify({
+            "output": output.getvalue(),
+            "plot": img_data  # base64 image (None if no plot)
+        })
+
     except Exception as e:
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    # Disable reloader → Tkinter/plt.show() will work fine
     app.run(debug=True, use_reloader=False)
