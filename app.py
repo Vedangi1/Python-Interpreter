@@ -4,11 +4,14 @@ import sys
 import contextlib
 from flask_cors import CORS
 
+# Force Matplotlib to use Tkinter GUI backend
+import matplotlib
+matplotlib.use("TkAgg")
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import re
-import tkinter as tk
+import tkinter as tk   # Tkinter support
 
 app = Flask(__name__)
 CORS(app)
@@ -30,7 +33,7 @@ def run_code():
     def secure_input(prompt=""):
         return input()
 
-    # Allow __import__ to make import statements work
+    # Safe builtins (still risky for production, but ok for practice)
     safe_builtins = {
         "print": print,
         "input": secure_input,
@@ -41,7 +44,7 @@ def run_code():
         "len": len,
         "bool": bool,
         "list": list,
-        "__import__": __import__  # 🟡 Warning: Risky in production
+        "__import__": __import__  # Allow imports
     }
 
     safe_globals = {
@@ -51,9 +54,10 @@ def run_code():
     try:
         with contextlib.redirect_stdout(output):
             exec(code, safe_globals)
-        return jsonify({ "output": output.getvalue() })
+        return jsonify({"output": output.getvalue()})
     except Exception as e:
-        return jsonify({ "error": str(e) })
+        return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Disable reloader → Tkinter/plt.show() will work fine
+    app.run(debug=True, use_reloader=False)
