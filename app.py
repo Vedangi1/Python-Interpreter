@@ -1,3 +1,5 @@
+import threading
+import tkinter as tk
 from flask import Flask, request, jsonify, render_template
 import io
 import sys
@@ -8,12 +10,13 @@ from flask_cors import CORS
 import numpy as np
 import pandas as pd
 import matplotlib
-matplotlib.use("Agg")   # GUI disable, for backend only
+matplotlib.use("Agg")   # GUI disable (Flask backend me only images)
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 import base64
 
+# -------------------- Flask App -------------------- #
 app = Flask(__name__)
 CORS(app)
 
@@ -27,14 +30,12 @@ def run_code():
     code = data.get("code", "")
     user_input = data.get("input", "")
 
-    # Redirect input/output
     sys.stdin = io.StringIO(user_input)
     output = io.StringIO()
 
     def secure_input(prompt=""):
         return input()
 
-    # Safe builtins
     safe_builtins = {
         "print": print,
         "input": secure_input,
@@ -48,7 +49,6 @@ def run_code():
         "__import__": __import__
     }
 
-    # Allowed globals (expose ML & plotting libs)
     safe_globals = {
         "__builtins__": safe_builtins,
         "np": np,
@@ -62,22 +62,41 @@ def run_code():
         with contextlib.redirect_stdout(output):
             exec(code, safe_globals)
 
-            # Check if plot was created
             img_data = None
-            if plt.get_fignums():  # If a figure exists
+            if plt.get_fignums():  # Agar koi plot bana
                 buf = io.BytesIO()
                 plt.savefig(buf, format="png")
                 buf.seek(0)
                 img_data = base64.b64encode(buf.read()).decode("utf-8")
-                plt.close("all")  # Clear after sending
+                plt.close("all")
 
         return jsonify({
             "output": output.getvalue(),
-            "plot": img_data  # base64 image (None if no plot)
+            "plot": img_data
         })
 
     except Exception as e:
         return jsonify({"error": str(e)})
 
-if __name__ == '__main__':
+def run_flask():
     app.run(debug=True, use_reloader=False)
+
+# -------------------- Tkinter GUI -------------------- #
+def run_tkinter():
+    root = tk.Tk()
+    root.title("Vedangi Combo App")
+
+    label = tk.Label(root, text="Flask + Tkinter Running 🎉", font=("Arial", 14))
+    label.pack(pady=20)
+
+    btn = tk.Button(root, text="Click Me", command=lambda: print("Tkinter Button Clicked"))
+    btn.pack(pady=10)
+
+    root.mainloop()
+
+# -------------------- Run Both -------------------- #
+if __name__ == '__main__':
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+
+    run_tkinter()
