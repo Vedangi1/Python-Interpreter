@@ -3,81 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python Interpreter - Secure</title>
-  <style>
-    body {
-      font-family: 'Courier New', monospace;
-      background: #1e1e1e;
-      color: #0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    textarea {
-      width: 95%;
-      height: 250px;
-      background: #111;
-      color: white;
-      border: none;
-      padding: 10px;
-      font-size: 14px;
-    }
-    #userInput {
-      width: 90%;
-      height: 120px;
-      background: #000;
-      color: #0f0;
-      border: none;
-      padding: 10px;
-      font-size: 14px;
-      resize: vertical;
-    }
-    button {
-      background: #27ae60;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      margin: 15px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    pre {
-      width: 90%;
-      height: 200px;
-      background: #000;
-      color: #0f0;
-      padding: 10px;
-      overflow-y: auto;
-      border-radius: 5px;
-    }
-  </style>
+  <title>Python Interpreter</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Python Interpreter</h2>
+  <div class="particles" id="particles"></div>
+  
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <i class="fas fa-moon"></i>
+  </div>
+  
+  <div class="toast" id="toast"></div>
+  
+  <div class="container">
+    <header>
+      <div class="logo">ViperX 🥷 </div>
+      <div class="subtitle">Advanced Python 3.11 Interpreter with Real-time Execution</div>
+    </header>
+    
+    <div class="panel">
+      <div class="panel-header">
+        <span><i class="fas fa-code"></i> CODE EDITOR</span>
+        <div class="panel-icon">
+          <div class="icon-btn" onclick="toggleFullscreen('code')"><i class="fas fa-expand"></i></div>
+          <div class="icon-btn" onclick="copyToClipboard('code')"><i class="fas fa-copy"></i></div>
+          <div class="icon-btn" onclick="resetCode()"><i class="fas fa-redo"></i></div>
+        </div>
+      </div>
+      <textarea id="code" spellcheck="false"># Enter your Python code here
+print("Hello, World!")
+</textarea>
+      <div class="status-bar">
+        <span><i class="fas fa-code-branch"></i> Python 3.11.4</span>
+        <span><i class="fas fa-microchip"></i> Secure Execution Environment</span>
+      </div>
+    </div>
+    
+    <div class="panel">
+      <div class="panel-header">
+        <span><i class="fas fa-terminal"></i> STANDARD INPUT</span>
+        <div class="panel-icon">
+          <div class="icon-btn" onclick="toggleFullscreen('userInput')"><i class="fas fa-expand"></i></div>
+          <div class="icon-btn" onclick="clearInput()"><i class="fas fa-trash"></i></div>
+        </div>
+      </div>
+      <textarea id="userInput" placeholder="Enter multi-line input here (if your code requires it)..." spellcheck="false"></textarea>
+    </div>
+    
+    <div class="button-container">
+      <button class="run-btn" onclick="runCode()">
+        <i class="fas fa-play"></i> EXECUTE CODE
+      </button>
+    </div>
+    
+    <div class="panel">
+      <div class="panel-header">
+        <span><i class="fas fa-output"></i> OUTPUT CONSOLE</span>
+        <div class="panel-icon">
+          <div class="icon-btn" onclick="copyToClipboard('output')"><i class="fas fa-copy"></i></div>
+          <div class="icon-btn" onclick="clearOutput()"><i class="fas fa-trash"></i></div>
+        </div>
+      </div>
+      <div class="terminal-output">
+        <pre id="output">ViperX Terminal initialized. Ready to execute Python code.<span class="blink">_</span></pre>
+      </div>
+      <div class="status-bar">
+        <span id="status-indicator"><i class="fas fa-circle"></i> Ready</span>
+        <span id="last-execution"></span>
+      </div>
+    </div>
+  </div>
 
-  <textarea id="code"># Write Python code here
-print("Hello World")</textarea>
-  <textarea id="userInput" placeholder="Enter multi-line input here..."></textarea>
-  <button onclick="runCode()">Run Code</button>
-
-  <pre id="output">Output will appear here...</pre>
-
-  <script>
-    function runCode() {
-      const code = document.getElementById("code").value;
-      const input = document.getElementById("userInput").value;
-
-      fetch("http://localhost:5000/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, input })
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("output").textContent = data.output || data.error || "No output";
-      });
-    }
-  </script>
+  <script src="scripts.js"></script>
 </body>
 </html>
