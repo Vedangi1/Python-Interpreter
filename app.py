@@ -1,22 +1,24 @@
 import threading
-import tkinter as tk
 from flask import Flask, request, jsonify, render_template
 import io
 import sys
 import contextlib
 from flask_cors import CORS
 
-# Data/ML libraries
+
 import numpy as np
 import pandas as pd
 import matplotlib
-matplotlib.use("Agg")   # GUI disable (Flask backend me only images)
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 import base64
 
-# -------------------- Flask App -------------------- #
+
+import pygame
+
+
 app = Flask(__name__)
 CORS(app)
 
@@ -55,7 +57,8 @@ def run_code():
         "pd": pd,
         "plt": plt,
         "sns": sns,
-        "LinearRegression": LinearRegression
+        "LinearRegression": LinearRegression,
+        "pygame": pygame
     }
 
     try:
@@ -63,7 +66,7 @@ def run_code():
             exec(code, safe_globals)
 
             img_data = None
-            if plt.get_fignums():  # Agar koi plot bana
+            if plt.get_fignums():
                 buf = io.BytesIO()
                 plt.savefig(buf, format="png")
                 buf.seek(0)
@@ -81,22 +84,6 @@ def run_code():
 def run_flask():
     app.run(debug=True, use_reloader=False)
 
-# -------------------- Tkinter GUI -------------------- #
-def run_tkinter():
-    root = tk.Tk()
-    root.title("Vedangi Combo App")
 
-    label = tk.Label(root, text="Flask + Tkinter Running 🎉", font=("Arial", 14))
-    label.pack(pady=20)
-
-    btn = tk.Button(root, text="Click Me", command=lambda: print("Tkinter Button Clicked"))
-    btn.pack(pady=10)
-
-    root.mainloop()
-
-# -------------------- Run Both -------------------- #
 if __name__ == '__main__':
-    flask_thread = threading.Thread(target=run_flask, daemon=True)
-    flask_thread.start()
-
-    run_tkinter()
+    run_flask()
